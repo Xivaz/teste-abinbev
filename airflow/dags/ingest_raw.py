@@ -45,12 +45,12 @@ def ingest_raw_data():
 
 # Definindo a tarefa de ingestão de dados  
 # Tarefa para fazer a leitura da api do openbrewerydb e gerar a camada raw
-    wasb_hook = WasbHook(wasb_conn_id='azure_blob_storage')
-    container_name = Variable.get("azure_blob_container")
-    blob_name = Variable.get("raw_data_blob_name")
+wasb_hook = WasbHook(wasb_conn_id='azure_blob_storage')
+container_name = Variable.get("azure_blob_container")
+blob_name = Variable.get("raw_data_blob_name")
     
-    # Example: Download the blob to a local file
-    wasb_hook.get_file(container_name=container_name, blob_name=blob_name, filename=dir_raw_data)
+# Example: Download the blob to a local file
+# wasb_hook.get_file(container_name=container_name, blob_name=blob_name, filename=dir_raw_data)
 
 # Tarefa Início
 inicio = DummyOperator(
