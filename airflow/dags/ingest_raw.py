@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 from airflow.utils.dates import days_ago
 from airflow.models import Variable
 from airflow.providers.azure.hooks.wasb import WasbHook
@@ -45,9 +45,41 @@ def ingest_raw_data():
 
 # Definindo a tarefa de ingestão de dados  
 # Tarefa para fazer a leitura da api do openbrewerydb e gerar a camada raw
-    wasb_hook = WasbHook(wasb_conn_id='azure_blob_storage')
-    container_name = Variable.get("azure_blob_container")
-    blob_name = Variable.get("raw_data_blob_name")
+wasb_hook = WasbHook(wasb_conn_id='azure_blob_storage')
+container_name = Variable.get("azure_blob_container")
+blob_name = Variable.get("raw_data_blob_name")
     
-    # Example: Download the blob to a local file
-    wasb_hook.get_file(container_name=container_name, blob_name=blob_name, filename=dir_raw_data)
+# Example: Download the blob to a local file
+# wasb_hook.get_file(container_name=container_name, blob_name=blob_name, filename=dir_raw_data)
+
+# Tarefa Início
+inicio = DummyOperator(
+    task_id='start',
+    dag=dag,
+)
+
+# Tarefa ingestão de dados RAW
+ingest_raw_data = PythonOperator(
+    task_id='ingest_raw_data',      
+    python_callable=ingest_raw_data,
+    dag=dag,
+)
+
+# Tarefa de upload para o Azure Blob Storage
+upload_to_azure_blob = WasbToAzureBlobOperator(
+    task_id='upload_to_azure_blob',
+    wasb_conn_id='azure_blob_storage',
+    container_name=Variable.get("azure_blob_container"),
+    blob_name=Variable.get("raw_data_blob_name"),
+    file_path=dir_raw_data,
+    dag=dag,
+)
+
+# Tarefa Fim
+fim = DummyOperator(        
+    task_id='end',
+    dag=dag,
+)
+
+# Definindo a ordem das tarefas
+inicio >> ingest_raw_data >> upload_to_azure_blob >> fim
