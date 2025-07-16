@@ -20,6 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install pybind11
           pip install google-re2==1.0
           pip install apache-airflow[crypto,postgres,ssh]
           pip install apache-airflow-providers-ssh
