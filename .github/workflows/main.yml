@@ -32,26 +32,27 @@ jobs:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
+      - name: Checkout
       - uses: actions/checkout@v1
       - name: Deploy to Airflow
-    env:
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      run: |
-        mkdir -p ~/.ssh
-        echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        rsync -avz --exclude '.git/' --exclude 'tests/' ./dags/ airflow@40.76.250.231:/opt/airflow/dags/
-        echo "Deploying to Airflow..."
-        - name: Notify Deployment Success
-          run: |
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "${SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          rsync -avz --exclude '.git/' --exclude 'tests/' ./dags/ airflow@40.76.250.231:/opt/airflow/dags/
+          echo "Deploying to Airflow..."
+      - name: Notify Deployment Success
+        run: |
             echo "Deployment successful!"
-          # Add notification commands here, e.g., sending a message to Slack or email
-        - name: Notify Deployment Failure
-          if: failure()  
-            run: |
-              echo "Deployment failed!"
-        - name: Clean up SSH key
-            run: |
+      # Add notification commands here, e.g., sending a message to Slack or email
+      - name: Notify Deployment Failure
+        if: failure()  
+          run:|
+            echo "Deployment failed!"
+      - name: Clean up SSH key
+          run:|
             rm -f ~/.ssh/id_rsa
-          echo "Cleaned up SSH key" 
+            echo "Cleaned up SSH key" 
  
