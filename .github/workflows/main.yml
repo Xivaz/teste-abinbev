@@ -20,6 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          pip install CFLAGS='-std=c++17' pip install google-re2 --no-cache-dir
           pip install apache-airflow[crypto,postgres,ssh]
           pip install apache-airflow-providers-ssh
           pip install apache-airflow-providers-postgres   
